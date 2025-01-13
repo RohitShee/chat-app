@@ -74,7 +74,6 @@ export const useAuthStore = create((set,get)=>({
         }
     },
     connectSocket : () =>{
-        console.log('helo')
         const {authUser} = get();
         if(!authUser && get().socket?.connected) return;
         const socket = io(BASE_URL,{
