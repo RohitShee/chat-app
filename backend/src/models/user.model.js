@@ -18,7 +18,13 @@ const userSchema = new mongoose.Schema({
     profilePic :{
         type: String,
         default: ""
-    }
+    },
+    blockedUsers :[
+        {
+            type : mongoose.Schema.Types.ObjectId,
+            ref : "User"
+        }
+    ]
 
 
 },{timestamps: true});

@@ -1,10 +1,19 @@
 import { X } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useChatStore } from "../store/useChatStore";
+import { axiosInstance } from "../lib/axios";
+import { useState } from "react";
 
 const ChatHeader = () => {
   const { selectedUser, setSelectedUser } = useChatStore();
-  const { onlineUsers } = useAuthStore();
+  const { onlineUsers,authUser } = useAuthStore();
+  const[isBlocked,setIsBlocked] = useState(authUser?.blockedUsers.includes(selectedUser._id))
+
+  const handleBlocking = async() =>{
+    if(isBlocked) await axiosInstance.post('user/unblock',{unblockUserId :selectedUser._id});
+    else  await axiosInstance.post('user/block',{blockUserId :selectedUser._id});
+    setIsBlocked(!isBlocked);
+  }
 
   return (
     <div className="p-2.5 border-b border-base-300">
@@ -26,10 +35,16 @@ const ChatHeader = () => {
           </div>
         </div>
 
-        {/* Close button */}
-        <button onClick={() => setSelectedUser(null)}>
-          <X />
-        </button>
+        
+        <div className="flex gap-3">
+           <button onClick={handleBlocking}>
+            {isBlocked ? "Unblock" : "Block"}
+           </button>
+           {/* Close button */}
+           <button onClick={() => setSelectedUser(null)}>
+             <X />
+           </button>
+        </div>
       </div>
     </div>
   );

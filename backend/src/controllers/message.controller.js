@@ -36,6 +36,16 @@ const sendMessages = async(req,res) =>{
         const {text , image} =req.body;
         const {id : receiverId} = req.params;
         const senderId = req.user._id;
+
+        const sender = await User.findById(senderId)
+        const receiver = await User.findById(receiverId)
+        if (sender.blockedUsers.includes(receiverId) || receiver.blockedUsers.includes(senderId)) {
+            if(sender.blockedUsers.includes(receiverId))
+            return res.status(403).json({ message: 'Unblock user to send Messages' });
+            else
+            return res.status(403).json({ message: 'Message blocked by the recipient' });
+        }
+
         let imageUrl;
         if(image){
             const uploadResponse = await cloudinary.uploader.upload(image);
