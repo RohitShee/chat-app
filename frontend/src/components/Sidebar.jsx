@@ -5,7 +5,7 @@ import { Users } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
 
 const Sidebar = () => {
-    const { users , selectedUser, getUsers,setSelectedUser,isUserLoading} = useChatStore()
+    const { users , selectedUser, getUsers,setSelectedUser,isUserLoading,isBroadcastSelected,setIsBroadcastSelected} = useChatStore()
     const [showOnlineOnly,setShowOnlineOnly] = useState(false);
     const {onlineUsers} = useAuthStore()
     
@@ -38,11 +38,39 @@ const Sidebar = () => {
         </div>
       </div>
 
+
      <div className='overflow-y-auto w-full py-3'>
+      {/*Broadcast Channel*/}
+      <button
+            onClick={() => {
+              setIsBroadcastSelected(true);
+            }}
+            className={`
+              w-full p-3 flex items-center gap-3 
+              hover:bg-base-300 transition-colors
+              ${isBroadcastSelected ? "bg-base-300 ring-1 ring-base-300" : ""}
+            `}
+          >
+            <div className="relative  lg:mx-0">
+            <img
+                src= "/mike.png"
+                alt="broadcast"
+                className="size-12 object-cover rounded-full"
+              />  
+            </div>
+
+            {/* User info - only visible on larger screens */}
+            <div className="block text-left min-w-0">
+              <div className="font-medium truncate">Broadcast Channel</div>
+            </div>
+          </button>
      {filteredUsers.map((user) => (
           <button
             key={user._id}
-            onClick={() => setSelectedUser(user)}
+            onClick={() => {
+              setSelectedUser(user);
+              setIsBroadcastSelected(false);
+            }}
             className={`
               w-full p-3 flex items-center gap-3 
               hover:bg-base-300 transition-colors

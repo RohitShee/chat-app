@@ -70,4 +70,62 @@ const sendMessages = async(req,res) =>{
     }
 }
 
-export {getUsersForSidebar,getMessages,sendMessages};
+const broadcastMessage = async(req,res)=>{
+    try {
+        const {text,image} = req.body;
+        const senderId = req.user._id;
+        const users = await User.find({ _id: { $ne: senderId } });
+        let imageUrl;
+        if(image){
+            const uploadResponse = await cloudinary.uploader.upload(image);
+            imageUrl = uploadResponse.secure_url;
+        }
+        
+        users.forEach(async(user)=>{
+            const receiverSocketId = getReceiverSocketId(user._id);
+            const newMessage =new Message({
+                senderId,
+                receiverId: user._id,
+                text,
+                image : imageUrl
+            })
+            await newMessage.save();
+            if(receiverSocketId){
+                io.to(receiverSocketId).emit("newMessage",newMessage);
+            }
+        })
+        
+        //help to find broadcast message by user => receiver and sender id is same
+
+        const broadMessage =new Message({
+            senderId,
+            receiverId : senderId,
+            text,
+            image : imageUrl
+        })
+ 
+        await broadMessage.save();
+
+        return res.status(201).json(broadMessage);
+    } catch (error) {
+        console.log('broadcastMessages error: '+error)
+        return res.status(500).json({'message' : 'Internal Server Error'})
+    }
+}
+
+const getBroadcastMessages = async(req,res)=>{
+    try {
+        const userId = req.user._id
+
+        const broadMessages = await Message.find({ 
+                senderId : userId , 
+                receiverId : userId
+         });
+         res.status(200).json(broadMessages);
+    } catch (error) {
+        console.log('getBroadcastMessages error: '+error)
+        return res.status(500).json({'message' : 'Internal Server Error'})
+    }
+}
+
+export {getUsersForSidebar,getMessages,sendMessages,broadcastMessage,getBroadcastMessages};

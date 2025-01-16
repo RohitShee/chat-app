@@ -9,7 +9,15 @@ export const useChatStore = create((set,get) => ({
     selectedUser : null,
     isUsersLoading : false,
     isMessageLoading : false,
+    isBroadcastSelected : false,
 
+    setIsBroadcastSelected : (isBroadcastSelected) =>{
+        if(isBroadcastSelected){
+            const {setSelectedUser} =get()
+            setSelectedUser(null);
+        }
+        set({isBroadcastSelected});
+    },
 
     getUsers : async () =>{
         set({isUsersLoading : true});
@@ -56,7 +64,26 @@ export const useChatStore = create((set,get) => ({
         socket.off("newMessage");
     },
     setSelectedUser : (selectedUser)=>{
-        //console.log(selectedUser)
         set({selectedUser : selectedUser})
+    },
+    broadcastMessage : async(messageData)=>{
+        const {messages} = get()
+        try {
+            const res = await axiosInstance.post(`/messages/broadcast`,messageData);
+            set({messages : [...messages,res.data]})
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }
+    },
+    getBroadcastMessage : async()=>{
+        set({isMessageLoading : true});
+        try {
+            const res = await axiosInstance.get('/messages/broadcastMessages');
+            set({messages : res.data})
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }finally{
+            set({isMessageLoading : false});
+        }
     }
 }))

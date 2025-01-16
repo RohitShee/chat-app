@@ -5,18 +5,30 @@ import MessageInput from './MessageInput';
 import MessageSkeleton from './skeletons/MessageSkeleton';
 import { useAuthStore } from '../store/useAuthStore';
 import { formatMessageTime } from '../lib/utils';
+import BroadcastHeader from './BroadcastHeader';
 
 const ChatContainer = () => {
 
-  const{selectedUser,messages,getMessages,isMessageLoading,subscribeToMessages,unsubscribeFromMessages} = useChatStore();
+  const{selectedUser,messages,getMessages,isMessageLoading,subscribeToMessages,unsubscribeFromMessages,isBroadcastSelected,getBroadcastMessage} = useChatStore();
   const{authUser} = useAuthStore()
   const messageEndRef = useRef(null);
-
-  useEffect(()=>{
-    getMessages(selectedUser._id);
-    subscribeToMessages()
-    return ()=> unsubscribeFromMessages();
-  },[selectedUser._id,getMessages,subscribeToMessages,unsubscribeFromMessages])
+  
+  useEffect(() => {
+    if (isBroadcastSelected) {
+      getBroadcastMessage(); // Fetch broadcast messages
+    } else if (selectedUser?._id) {
+      getMessages(selectedUser._id); // Fetch user-specific messages
+      subscribeToMessages();
+      return () => unsubscribeFromMessages();
+    }
+  }, [
+    selectedUser?._id,
+    isBroadcastSelected,
+    getMessages,
+    getBroadcastMessage,
+    subscribeToMessages,
+    unsubscribeFromMessages,
+  ]);
 
   useEffect(()=>{
     if(messageEndRef.current && messages)
@@ -33,7 +45,7 @@ const ChatContainer = () => {
 
   return (
     <div className='flex-1 flex flex-col overflow-auto'>
-      <ChatHeader/>
+      {isBroadcastSelected ?  <BroadcastHeader/> : <ChatHeader/> }
       <div className='flex-1 overflow-y-auto p-4 space-y-4'>
         {messages.map((message)=>
           <div
@@ -45,7 +57,7 @@ const ChatContainer = () => {
                 <div className='size-10 rounded-full border'>
                   <img src={message.senderId === authUser._id 
                     ? authUser.profilePic || "/avatar.png"
-                    : selectedUser.profilePic || "/avatar.png"
+                    : selectedUser?.profilePic || "/avatar.png"
                   } alt="" />
                 </div>
             </div>
