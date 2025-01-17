@@ -61,6 +61,7 @@ const sendMessages = async(req,res) =>{
 
         const receiverSocketId = getReceiverSocketId(receiverId);
         if(receiverSocketId){
+           // console.log("sending msg through socket")
             io.to(receiverSocketId).emit("newMessage",newMessage);
         }
         return res.status(201).json(newMessage);
@@ -82,6 +83,7 @@ const broadcastMessage = async(req,res)=>{
         }
         
         users.forEach(async(user)=>{
+            if(!user.blockedUsers?.includes(senderId)){
             const receiverSocketId = getReceiverSocketId(user._id);
             const newMessage =new Message({
                 senderId,
@@ -93,6 +95,7 @@ const broadcastMessage = async(req,res)=>{
             if(receiverSocketId){
                 io.to(receiverSocketId).emit("newMessage",newMessage);
             }
+           }
         })
         
         //help to find broadcast message by user => receiver and sender id is same

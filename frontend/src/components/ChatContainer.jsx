@@ -18,17 +18,13 @@ const ChatContainer = () => {
       getBroadcastMessage(); // Fetch broadcast messages
     } else if (selectedUser?._id) {
       getMessages(selectedUser._id); // Fetch user-specific messages
-      subscribeToMessages();
-      return () => unsubscribeFromMessages();
     }
-  }, [
-    selectedUser?._id,
-    isBroadcastSelected,
-    getMessages,
-    getBroadcastMessage,
-    subscribeToMessages,
-    unsubscribeFromMessages,
-  ]);
+  
+    subscribeToMessages();
+    
+    return () => unsubscribeFromMessages();
+  }, [selectedUser?._id, isBroadcastSelected, subscribeToMessages, unsubscribeFromMessages]);
+  
 
   useEffect(()=>{
     if(messageEndRef.current && messages)

@@ -20,12 +20,26 @@ const userSocketMap = {}; //{userId : socketId}
 
 io.on("connection",(socket)=>{
     const userId = socket.handshake.query.userId;
-    if(userId) userSocketMap[userId]=socket.id;
-    console.log("A user connected",socket.id);
-    //emit is used to send events to all connected client
-    io.emit("getOnlineUsers",Object.keys(userSocketMap));
+    if (userId) {
+        // Check for an existing connection
+        const oldSocketId = userSocketMap[userId];
+        if (oldSocketId) {
+            const oldSocket = io.sockets.sockets.get(oldSocketId);
+            if (oldSocket) {
+                console.log(`Duplicate connection for user ${userId}. Disconnecting old socket.`);
+                oldSocket.disconnect();
+            }
+        }
+
+        // Store the new socket ID
+        userSocketMap[userId] = socket.id;
+
+        console.log("A user connected:", userId);
+        io.emit("getOnlineUsers", Object.keys(userSocketMap));
+    }
+
     socket.on("disconnect",()=>{
-        console.log("A user disconnected",socket.id);
+        console.log("A user disconnected",userId);
         delete userSocketMap[userId];
         io.emit("getOnlineUsers",Object.keys(userSocketMap));
     })
