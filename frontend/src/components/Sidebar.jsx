@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react'
 import { useChatStore } from '../store/useChatStore'
 import SidebarSkeleton from './skeletons/SidebarSkeleton';
-import { Users } from 'lucide-react';
+import { Users,CirclePlus } from 'lucide-react';
 import { useAuthStore } from '../store/useAuthStore';
+import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
     const { users , selectedUser, getUsers,setSelectedUser,isUserLoading,isBroadcastSelected,setIsBroadcastSelected} = useChatStore()
@@ -20,9 +21,21 @@ const Sidebar = () => {
   return (
     <aside className="h-full w-72 border-r border-base-300 flex flex-col transition-all duration-200">
       <div className="border-b border-base-300 w-full p-5">
-        <div className="flex items-center gap-2">
-          <Users className="size-6" />
-          <span className="font-medium block">Contacts</span>
+        <div className="flex items-center gap-2 justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="size-6" />
+            <span className="font-medium block">Contacts</span>
+          </div>
+          <Link to={"/create-group"} className="relative group">
+            <CirclePlus className="size-5 cursor-pointer" />
+            <span 
+              className="absolute hidden group-hover:inline-block 
+              px-2 py-1 bg-gray-700 text-white text-xs rounded-md 
+              -left-8 "
+            >
+              Create Group
+            </span>
+          </Link>
         </div>
         <div className="mt-3 flex items-center gap-2">
           <label className="cursor-pointer flex items-center gap-2">
