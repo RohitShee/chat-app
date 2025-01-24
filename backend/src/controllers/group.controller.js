@@ -4,7 +4,6 @@ const createGroup = async(req,res) =>{
     try {
         const userId = req.user._id;
         const {groupName,members} = req.body;
-        console.log(members);
         if(!groupName)  return res.status(400).json({'message' : 'GroupName is Required'});
         const newGroup = new Group({
             groupName,
@@ -37,7 +36,8 @@ const getGroupInfo = async(req,res) =>{
 const getGroupsForUser = async(req,res)=>{
     try {
         const userId = req.user._id
-        const groups = Group.find({members : userId});
+        const groups = await Group.find({members : userId});
+        //console.log(groups)
         return res.status(200).json(groups);
     } catch (error) {
         console.log("error in getGroupsForUser controller",error);

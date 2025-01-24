@@ -13,6 +13,7 @@ export const useAuthStore = create((set,get)=>({
     onlineUsers : [],
     isCheckingAuth : true,
     socket : null,
+    isCreatingGroup : false,
     checkAuth : async () =>{
         try {
             const res = await axiosInstance.get("auth/check");
@@ -89,6 +90,18 @@ export const useAuthStore = create((set,get)=>({
     },
     disconnectSocket : () =>{
         if(get().socket?.connected) get().socket.disconnect();
+    },
+    createGroup : async(data) =>{
+        set({isCreatingGroup : true});
+        try {
+           const res = await axiosInstance.post('/group/create',data)
+           console.log(res.data);
+           toast.success('Group Updated Successfully');
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }finally{
+            set({isCreatingGroup : false});
+        }
     }
     
 }))

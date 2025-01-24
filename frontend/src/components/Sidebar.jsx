@@ -6,13 +6,14 @@ import { useAuthStore } from '../store/useAuthStore';
 import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
-    const { users , selectedUser, getUsers,setSelectedUser,isUserLoading,isBroadcastSelected,setIsBroadcastSelected} = useChatStore()
+    const { users , selectedUser, getUsers,setSelectedUser,isUserLoading,isBroadcastSelected,setIsBroadcastSelected,groups,getGroups} = useChatStore()
     const [showOnlineOnly,setShowOnlineOnly] = useState(false);
     const {onlineUsers} = useAuthStore()
     
     useEffect(()=>{
         getUsers()
-    },[getUsers]);
+        getGroups()
+    },[getUsers,getGroups]);
 
     const filteredUsers = showOnlineOnly ? users.filter((user)=>onlineUsers.includes(user._id)) : users;
 
@@ -113,10 +114,39 @@ const Sidebar = () => {
             </div>
           </button>
         ))}
-
 {filteredUsers.length === 0 && (
           <div className="text-center text-zinc-500 py-4">No online users</div>
         )}
+
+        {/*Group Section */}
+        <div className="mt-4">
+        <h3 className="text-sm font-medium text-zinc-500 px-3">Groups</h3>
+        <div className="overflow-y-auto w-full py-3">
+          {groups.map((group) => (
+            <button
+              key={group._id}
+              onClick={() => {
+                setSelectedGroup(group);
+                setIsBroadcastSelected(false);
+                setSelectedUser(null);
+              }}
+              className={`w-full p-3 flex items-center gap-3 
+                hover:bg-base-300 transition-colors` }
+                
+            >
+              <div className="relative">
+                <img src={group.groupPic || "/group.png"}
+                alt={group.groupName}
+                className="size-12 object-cover rounded-full"/>
+              </div>
+              <div className="block text-left min-w-0">
+                <div className="font-medium truncate">{group.groupName}</div>
+                <div className="text-sm text-zinc-400">{group.members.length} members</div>
+              </div>
+            </button>
+          ))}
+          </div>
+        </div>
      </div>
             
     </aside>
