@@ -34,7 +34,7 @@ io.on("connection",(socket)=>{
         // Store the new socket ID
         userSocketMap[userId] = socket.id;
 
-        console.log("A user connected:", userId);
+        console.log("A user connected:", userSocketMap[userId]);
         io.emit("getOnlineUsers", Object.keys(userSocketMap));
     }
 

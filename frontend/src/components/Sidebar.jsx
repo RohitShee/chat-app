@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { Link } from 'react-router-dom';
 
 const Sidebar = () => {
-    const { users , selectedUser, getUsers,setSelectedUser,isUserLoading,isBroadcastSelected,setIsBroadcastSelected,groups,getGroups} = useChatStore()
+    const { users , selectedUser, getUsers,setSelectedUser,isUserLoading,isBroadcastSelected,setIsBroadcastSelected,groups,getGroups,setSelectedGroup,selectedGroup} = useChatStore()
     const [showOnlineOnly,setShowOnlineOnly] = useState(false);
     const {onlineUsers} = useAuthStore()
     
@@ -57,6 +57,8 @@ const Sidebar = () => {
       {/*Broadcast Channel*/}
       <button
             onClick={() => {
+              setSelectedGroup(null);
+              setSelectedUser(null);
               setIsBroadcastSelected(true);
             }}
             className={`
@@ -84,6 +86,7 @@ const Sidebar = () => {
             onClick={() => {
               setSelectedUser(user);
               setIsBroadcastSelected(false);
+              setSelectedGroup(null);
             }}
             className={`
               w-full p-3 flex items-center gap-3 
@@ -131,7 +134,9 @@ const Sidebar = () => {
                 setSelectedUser(null);
               }}
               className={`w-full p-3 flex items-center gap-3 
-                hover:bg-base-300 transition-colors` }
+                hover:bg-base-300 transition-colors
+                ${selectedGroup?._id === group._id ? "bg-base-300 ring-1 ring-base-300" : ""}
+                ` }
                 
             >
               <div className="relative">

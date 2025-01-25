@@ -6,10 +6,14 @@ import MessageSkeleton from './skeletons/MessageSkeleton';
 import { useAuthStore } from '../store/useAuthStore';
 import { formatMessageTime } from '../lib/utils';
 import BroadcastHeader from './BroadcastHeader';
+import GroupChatHeader from './GroupChatHeader';
 
 const ChatContainer = () => {
 
-  const{selectedUser,messages,getMessages,isMessageLoading,subscribeToMessages,unsubscribeFromMessages,isBroadcastSelected,getBroadcastMessage} = useChatStore();
+  const{selectedUser,
+    messages,getMessages,isMessageLoading,subscribeToMessages,unsubscribeFromMessages,
+    isBroadcastSelected,getBroadcastMessage,
+    selectedGroup,getGroupMessages} = useChatStore();
   const{authUser} = useAuthStore()
   const messageEndRef = useRef(null);
   
@@ -18,6 +22,8 @@ const ChatContainer = () => {
       getBroadcastMessage(); // Fetch broadcast messages
     } else if (selectedUser?._id) {
       getMessages(selectedUser._id); // Fetch user-specific messages
+    }else if(selectedGroup?._id){
+      getGroupMessages(selectedGroup._id);
     }
   
     subscribeToMessages();
@@ -41,7 +47,13 @@ const ChatContainer = () => {
 
   return (
     <div className='flex-1 flex flex-col overflow-auto'>
-      {isBroadcastSelected ?  <BroadcastHeader/> : <ChatHeader/> }
+       {selectedGroup ? (
+        <GroupChatHeader />
+      ) : isBroadcastSelected ? (
+        <BroadcastHeader />
+      ) : (
+        <ChatHeader />
+      )}
       <div className='flex-1 overflow-y-auto p-4 space-y-4'>
         {messages.map((message)=>
           <div

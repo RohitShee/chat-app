@@ -5,7 +5,7 @@ const MessageInput = () => {
     const [text,setText] = useState("")
     const [imagePreview,setImagePreview] = useState(null)
     const fileInputRef = useRef(null)
-    const {sendMessage,broadcastMessage,isBroadcastSelected} = useChatStore()
+    const {sendMessage,broadcastMessage,isBroadcastSelected,selectedUser,sendGroupMessage} = useChatStore()
 
     const handleImageChange = (e) =>{
       const file = e.target.files[0];
@@ -36,11 +36,16 @@ const MessageInput = () => {
             text: text.trim(),
             image: imagePreview,
           });
-        }else{
+        }else if(selectedUser){
           await sendMessage({
             text: text.trim(),
             image: imagePreview,
           });
+        }else{
+          await sendGroupMessage({
+            text: text.trim(),
+            image: imagePreview,
+          })        
         }
 
         setText("");

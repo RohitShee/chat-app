@@ -1,4 +1,7 @@
+import cloudinary from "../lib/cloudinary.js";
+import { io,getReceiverSocketId } from "../lib/socket.js";
 import Group from "../models/group.model.js";
+import GroupChat from "../models/groupChat.model.js";
 
 const createGroup = async(req,res) =>{
     try {
@@ -45,4 +48,52 @@ const getGroupsForUser = async(req,res)=>{
     }
 }
 
-export {createGroup,getGroupInfo,getGroupsForUser}
+const getGroupMessages = async(req,res)=>{
+    const{id : groupId} = req.params;
+    try {
+        const messages = await GroupChat.find({groupId});
+        return res.status(200).json(messages)
+    } catch (error) {
+        console.log("error in getGroupMessages controller",error);
+        return res.status(500).json({'message' : 'Internal Server Error'})
+    }
+}
+
+const sendGroupMessage = async(req,res)=>{
+    try {
+        const {text , image} =req.body;
+        const {id : groupId} = req.params;
+        const senderId = req.user._id;
+
+        const group = await Group.findById(groupId);
+
+        let imageUrl;
+        if(image){
+            const uploadResponse = await cloudinary.uploader.upload(image);
+            imageUrl = uploadResponse.secure_url;
+        }
+        const newGroupMessage = new GroupChat({
+            senderId,
+            groupId,
+            text,
+            image : imageUrl
+        });
+        await newGroupMessage.save();
+
+        const members = group.members;
+        members.forEach(async(member)=>{
+            if(member === senderId) return;
+            const receiverSocketId = getReceiverSocketId(member);
+            //console.log(receiverSocketId)
+            if(receiverSocketId){
+                io.to(receiverSocketId).emit("newGroupMessage",newGroupMessage);
+            }
+        })
+        return res.status(201).json(newGroupMessage);
+    } catch (error) {
+        console.log("error in sendGroupMessages controller",error);
+        return res.status(500).json({'message' : 'Internal Server Error'})
+    }
+}
+
+export {createGroup,getGroupInfo,getGroupsForUser,getGroupMessages,sendGroupMessage}

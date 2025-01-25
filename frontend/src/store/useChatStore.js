@@ -11,12 +11,8 @@ export const useChatStore = create((set,get) => ({
     isUsersLoading : false,
     isMessageLoading : false,
     isBroadcastSelected : false,
-
+    selectedGroup : null,
     setIsBroadcastSelected : (isBroadcastSelected) =>{
-        if(isBroadcastSelected){
-            const {setSelectedUser} =get()
-            setSelectedUser(null);
-        }
         set({isBroadcastSelected});
     },
 
@@ -63,16 +59,26 @@ export const useChatStore = create((set,get) => ({
         }
     },
     subscribeToMessages : () =>{
-        const {selectedUser} = get();
-        if(!selectedUser) return;
+        const {selectedUser,selectedGroup} = get();
+        if(!selectedUser && !selectedGroup) return;
         const socket = useAuthStore.getState().socket;
         socket.off("newMessage")
+        //socket.off("newGroupMessage")
         //console.log("subscribe to msg")
         socket.on("newMessage",(newMessage)=>{
            // console.log("we are getting new msg from web socket")
-            if(newMessage.senderId !== selectedUser._id) return;
+            if(newMessage.senderId === selectedUser._id){
             set({messages : [...get().messages,newMessage]})
+            }
         })
+        socket.off("newGroupMessage").on("newGroupMessage", (newGroupMessage) => {
+            if (selectedGroup && newGroupMessage.groupId === selectedGroup._id) {
+                //console.log("Received new group message:", newGroupMessage);
+                set((state) => ({
+                    messages: [...state.messages, newGroupMessage],
+                }));
+            }
+        });
     },
     unsubscribeFromMessages : () =>{
         const socket = useAuthStore.getState().socket;
@@ -99,6 +105,29 @@ export const useChatStore = create((set,get) => ({
             toast.error(error.response.data.message)
         }finally{
             set({isMessageLoading : false});
+        }
+    },
+    setSelectedGroup : (selectedGroup) =>{
+        set({selectedGroup : selectedGroup})
+    },
+    getGroupMessages : async(groupId)=>{
+        set({isMessageLoading : true});
+        try {
+            const res = await axiosInstance.get(`/group/messages/${groupId}`)
+            set({messages : res.data})
+        } catch (error) {
+            toast.error(error.response.data.message)
+        }finally{
+            set({isMessageLoading : false});
+        }
+    },
+    sendGroupMessage : async(messagedata)=>{
+        const {selectedGroup,messages} = get()
+        try {
+            const res = await axiosInstance.post(`/group/sendMessage/${selectedGroup._id}`,messagedata);
+            set({messages : [...messages,res.data]})
+        } catch (error) {
+            toast.error(error.response.data.message)
         }
     }
 }))
