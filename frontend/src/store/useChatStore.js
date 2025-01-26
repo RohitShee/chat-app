@@ -7,6 +7,7 @@ export const useChatStore = create((set,get) => ({
     messages : [],
     users : [],
     groups :[],
+    userIdToUserMap :{},
     selectedUser : null,
     isUsersLoading : false,
     isMessageLoading : false,
@@ -17,10 +18,18 @@ export const useChatStore = create((set,get) => ({
     },
 
     getUsers : async () =>{
+        const {userIdToUserMap} = get();
         set({isUsersLoading : true});
         try {
             const res = await axiosInstance.get("/messages/user");
             set({users : res.data});
+            res.data.forEach( user => {
+                userIdToUserMap[user._id]={
+                    fullName : user.fullName,
+                    profilePic : user.profilePic
+                };
+            });
+            //console.log(userIdToUserMap);
         } catch (error) {
             toast.error(error.response.data.message)
         }finally{

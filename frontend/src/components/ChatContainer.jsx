@@ -13,7 +13,7 @@ const ChatContainer = () => {
   const{selectedUser,
     messages,getMessages,isMessageLoading,subscribeToMessages,unsubscribeFromMessages,
     isBroadcastSelected,getBroadcastMessage,
-    selectedGroup,getGroupMessages} = useChatStore();
+    selectedGroup,getGroupMessages,userIdToUserMap } = useChatStore();
   const{authUser} = useAuthStore()
   const messageEndRef = useRef(null);
   
@@ -65,6 +65,7 @@ const ChatContainer = () => {
                 <div className='size-10 rounded-full border'>
                   <img src={message.senderId === authUser._id 
                     ? authUser.profilePic || "/avatar.png"
+                    : selectedGroup ? userIdToUserMap[message.senderId].profilePic || "/avatar.png"
                     : selectedUser?.profilePic || "/avatar.png"
                   } alt="" />
                 </div>
@@ -74,7 +75,12 @@ const ChatContainer = () => {
                   {formatMessageTime(message.createdAt)}
                 </time>
             </div>
-            <div className={`chat-bubble ${message.senderId==authUser._id ? "bg-primary text-primary-content" : "bg-base-200"} flex flex-col`}>
+            <div className={`chat-bubble ${message.senderId==authUser._id ? "bg-primary text-primary-content" : "bg-base-200 text-base-content"} flex flex-col`}>
+            {selectedGroup && message.senderId !== authUser._id && (
+              <span className="text-xs font-bold mb-1">
+              {userIdToUserMap[message.senderId]?.fullName || "Unknown User"}
+              </span>
+            )}
             {message.image && (
                 <img
                   src={message.image}
