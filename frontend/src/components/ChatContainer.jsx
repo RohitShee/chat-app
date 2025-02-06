@@ -29,7 +29,7 @@ const ChatContainer = () => {
     subscribeToMessages();
     
     return () => unsubscribeFromMessages();
-  }, [selectedUser?._id, isBroadcastSelected, subscribeToMessages, unsubscribeFromMessages]);
+  }, [selectedUser?._id, isBroadcastSelected, subscribeToMessages, unsubscribeFromMessages,selectedGroup._id]);
   
 
   useEffect(()=>{

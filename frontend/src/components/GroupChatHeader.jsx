@@ -1,6 +1,6 @@
 import { X } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
-
+import {Link} from 'react-router-dom';
 
 const GroupChatHeader = () => {
   const { setSelectedGroup,selectedGroup} = useChatStore();
@@ -16,7 +16,10 @@ const GroupChatHeader = () => {
         </div>
 
         <div>
+          <Link to={`/group/${selectedGroup._id}`}>
           <h3 className="font-medium">{selectedGroup?.groupName}</h3>
+          </Link>
+          
           <p className="text-sm text-base-content/70">
             {selectedGroup?.members.length} members
           </p>

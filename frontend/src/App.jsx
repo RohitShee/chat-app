@@ -11,6 +11,7 @@ import { Loader } from 'lucide-react';
 import {Toaster} from 'react-hot-toast';
 import { useThemeStore } from './store/useThemeStore';
 import CreateGroupPage from './pages/CreateGroupPage';
+import GroupDetailsPage from './pages/GroupDetailsPage';
 
 const App = () => {
    
@@ -41,6 +42,7 @@ const App = () => {
       <Route path="/settings" element={<SettingsPage/>}/>
       <Route path="/profile" element={authUser ? <ProfilePage/> : <Navigate to="/login"/>}/>
       <Route path="/create-group" element={authUser ? <CreateGroupPage/> : <Navigate to="/login"/>}/>
+      <Route path="/group/:id" element={authUser ? <GroupDetailsPage/> : <Navigate to="/login"/>}/>
     </Routes>
     <Toaster/>
    </div>

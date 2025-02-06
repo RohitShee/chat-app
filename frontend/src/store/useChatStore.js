@@ -18,6 +18,7 @@ export const useChatStore = create((set,get) => ({
     },
 
     getUsers : async () =>{
+        const {authUser} = useAuthStore.getState();
         const {userIdToUserMap} = get();
         set({isUsersLoading : true});
         try {
@@ -29,6 +30,11 @@ export const useChatStore = create((set,get) => ({
                     profilePic : user.profilePic
                 };
             });
+
+            userIdToUserMap[authUser._id]={
+                fullName : authUser.fullName,
+                profilePic : authUser.profilePic
+            };
             //console.log(userIdToUserMap);
         } catch (error) {
             toast.error(error.response.data.message)

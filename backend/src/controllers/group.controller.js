@@ -2,7 +2,7 @@ import cloudinary from "../lib/cloudinary.js";
 import { io,getReceiverSocketId } from "../lib/socket.js";
 import Group from "../models/group.model.js";
 import GroupChat from "../models/groupChat.model.js";
-
+import mongoose from "mongoose";
 const createGroup = async(req,res) =>{
     try {
         const userId = req.user._id;
@@ -27,7 +27,11 @@ const createGroup = async(req,res) =>{
 const getGroupInfo = async(req,res) =>{
     try {
         const {id : groupId} = req.params;
-        const group = await Group.findById(groupId);
+        if (!mongoose.Types.ObjectId.isValid(groupId)) {
+            return res.status(400).json({ message: "Invalid group ID" });
+        }
+        const group = await Group.findOne({_id : groupId});
+        //console.log(group)
         if(!group) return res.status(404).json({'message' : 'Group not found'})
         return res.status(200).json(group);
     } catch (error) {
@@ -96,4 +100,22 @@ const sendGroupMessage = async(req,res)=>{
     }
 }
 
-export {createGroup,getGroupInfo,getGroupsForUser,getGroupMessages,sendGroupMessage}
+const updateGroupPic = async (req,res)=>{
+    const{id : groupId} = req.params;
+    try {
+        const {groupPic} = req.body;
+        if(!groupPic){
+          return res.status(400).json({'message' : 'Picture is required'});
+        }
+        const uploadResponse = await cloudinary.uploader.upload(groupPic);
+        const updatedGroup = await Group.findByIdAndUpdate(groupId,
+            {groupPic :  uploadResponse.secure_url},
+            {new : true});
+        return res.status(200).json(updatedGroup)
+    } catch (error) {
+        console.log('error in uplaod group pic : '+ error)
+        return res.status(500).json({'message' : 'Internal Server Error'})
+    }
+}
+
+export {createGroup,getGroupInfo,getGroupsForUser,getGroupMessages,sendGroupMessage,updateGroupPic}
