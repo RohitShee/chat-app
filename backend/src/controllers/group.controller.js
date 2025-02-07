@@ -118,4 +118,89 @@ const updateGroupPic = async (req,res)=>{
     }
 }
 
-export {createGroup,getGroupInfo,getGroupsForUser,getGroupMessages,sendGroupMessage,updateGroupPic}
+const addNewMember = async(req,res)=>{
+    try {
+        const { id: groupId } = req.params;
+        const  {memberId}  = req.body;
+        if(!memberId) return res.status(400).json({ message: "Member ID is required" });
+        const group = await Group.findById(groupId);
+        if (!group) return res.status(404).json({ message: "Group not found" });
+    
+        if (group.members.includes(memberId)) {
+          return res.status(400).json({ message: "User is already a member" });
+        }
+        
+        group.members.push(memberId);
+        await group.save();
+    
+        res.status(200).json(group);
+      } catch (error) {
+        console.log("error in addNewMember controller",error)
+        res.status(500).json({ message: "Internal Server Error", error });
+      }
+}
+const removeMember = async(req,res)=>{
+    try {
+        const { id: groupId } = req.params;
+        const  {memberId}  = req.body;
+        if(!memberId) return res.status(400).json({ message: "Member ID is required" });
+        const group = await Group.findById(groupId);
+        if (!group) return res.status(404).json({ message: "Group not found" });
+    
+        if (!group.members.includes(memberId)) {
+          return res.status(400).json({ message: "User is not a member" });
+        }
+        if(memberId == group.creator) return res.status(400).json({ message: "Cannot remove creator"});
+        if(group.admins.includes(memberId))   group.admins.remove(memberId);
+        group.members.remove(memberId);
+        await group.save();
+    
+        res.status(200).json(group);
+      } catch (error) {
+        console.log("error in removeMember controller",error)
+        res.status(500).json({ message: "Internal Server Error", error });
+      }
+}
+const makeAdmin = async(req,res)=>{
+    try {
+        const { id: groupId } = req.params;
+        const  {memberId}  = req.body;
+        if(!memberId) return res.status(400).json({ message: "Member ID is required" });
+        const group = await Group.findById(groupId);
+        if (!group) return res.status(404).json({ message: "Group not found" });
+    
+        if (group.admins.includes(memberId)) {
+          return res.status(400).json({ message: "User is already a Admin" });
+        }
+        
+        group.admins.push(memberId);
+        await group.save();
+    
+        res.status(200).json(group);
+      } catch (error) {
+        console.log("error in makeAdmin controller",error)
+        res.status(500).json({ message: "Internal Server Error", error });
+      }
+}
+
+const removeAdmin = async(req,res)=>{
+    try {
+        const { id: groupId } = req.params;
+        const  {memberId}  = req.body;
+        if(!memberId) return res.status(400).json({ message: "Member ID is required" });
+        const group = await Group.findById(groupId);
+        if (!group) return res.status(404).json({ message: "Group not found" });
+        if (!group.admins.includes(memberId)) {
+          return res.status(400).json({ message: "User is Not a Admin" });
+        }
+        
+        group.admins.remove(memberId);
+        await group.save();
+    
+        res.status(200).json(group);
+      } catch (error) {
+        console.log("error in removeAdmin controller",error)
+        res.status(500).json({ message: "Internal Server Error", error });
+      }
+}
+export {createGroup,getGroupInfo,getGroupsForUser,getGroupMessages,sendGroupMessage,updateGroupPic,addNewMember,removeMember,makeAdmin,removeAdmin}

@@ -18,7 +18,7 @@ export const useGroupStore = create((set,get) => ({
   updateGroupPic: async (data) => {
     set({ isUpdatingGroup: true });
     try {
-      await axiosInstance.put(`group/updatePic/${get().group._id}`, data);
+      const res = await axiosInstance.put(`group/updatePic/${get().group._id}`, data);
       set({group : res.data});
       toast.success('Group Profile Picture Updated Successfully');
     } catch (error) {
@@ -26,5 +26,41 @@ export const useGroupStore = create((set,get) => ({
     } finally {
       set({ isUpdatingGroup: false });
     }
-  }
+  },
+  addMemberToGroup: async (memberId) => {
+    try {
+      const res = await axiosInstance.put(`group/addMember/${get().group._id}`,{memberId});
+      set({group : res.data});
+      toast.success('Member added Successfully');
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  },
+  makeAdmin: async (memberId) => {
+    try {
+      const res = await axiosInstance.put(`group/makeAdmin/${get().group._id}`,{memberId});
+      set({group : res.data});
+      toast.success('Admin added Successfully');
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  },
+  removeAdmin: async (memberId) => {
+    try {
+      const res = await axiosInstance.put(`group/removeAdmin/${get().group._id}`,{memberId});
+      set({group : res.data});
+      toast.success('Admin removed Successfully');
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  },
+  removeMember: async (memberId) => {
+    try {
+      const res = await axiosInstance.put(`group/removeMember/${get().group._id}`,{memberId});
+      set({group : res.data});
+      toast.success('Admin removed Successfully');
+    } catch (error) {
+      toast.error(error.response.data.message)
+    }
+  },
 }));
