@@ -64,7 +64,7 @@ CLOUDINARY_CLOUD_NAME=your_cloudinary_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
 ```
-###**4. Start the Application**
+### **4. Start the Application**
 ```bash
 npm run dev --prefix backend
 npm run dev --prefix frontend
